@@ -23,3 +23,23 @@ END
 ;
 
 call get_employees_sp;
+
+
+
+---------------------------------------------
+
+
+drop table if exists student_tbl;
+
+create table student_tbl (
+    id int not null AUTO_INCREMENT,
+    name varchar(30) not null,
+    school char(30) null,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;
+
+insert into student_tbl(name, school) values ('lily', '清华');
+insert into student_tbl(name, school) values ('lucy', '北大');
+insert into student_tbl(name, school) values ('jacky', '交大');
+insert into student_tbl(name, school) values ('keven', '清华');
+insert into student_tbl(name, school) values ('poly', '北大');

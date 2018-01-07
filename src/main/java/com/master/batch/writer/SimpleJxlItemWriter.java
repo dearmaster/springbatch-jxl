@@ -1,7 +1,5 @@
 package com.master.batch.writer;
 
-import com.master.batch.model.Employee;
-import com.master.batch.model.EmployeeExportReport;
 import net.sf.jxls.transformer.XLSTransformer;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.batch.item.ItemWriter;
@@ -9,23 +7,25 @@ import org.springframework.batch.item.ItemWriter;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JxlItemWriter implements ItemWriter<Employee> {
+public class SimpleJxlItemWriter<T> implements ItemWriter<T> {
 
     private String templatePath;
     private String outputPath;
 
-    @Override
-    public void write(List<? extends Employee> items) throws Exception {
-        EmployeeExportReport report = new EmployeeExportReport();
-        report.setEmployees((List<Employee>)items);
-        report.setCurrentDate(new Date());
+    protected Map encapsulateReportMap(List<? extends T> items) {
         Map<String, Object> map = new HashMap<>();
-        map.put("model", report);
+        map.put("report", items);
+        return map;
+    }
+
+    @Override
+    public void write(List<? extends T> items) throws Exception {
+
+        Map<String, Object> map = encapsulateReportMap(items);
 
         XLSTransformer xlsTransformer = new XLSTransformer();
 

@@ -5,17 +5,17 @@
 
     <import resource="spring-batch-jxls-common.xml"/>
 
-    <bean id="itemReader" class="org.springframework.batch.item.database.StoredProcedureItemReader">
+    <bean id="itemReader" class="org.springframework.batch.item.database.JdbcCursorItemReader">
         <property name="dataSource" ref="dataSource"/>
-        <property name="procedureName" value="get_employees_sp"/>
+        <property name="sql" value="select * from student_tbl"/>
         <property name="rowMapper">
-            <bean class="com.master.batch.mapper.EmployeeRowMapper"/>
+            <bean class="com.master.batch.mapper.StudentRowMapper"/>
         </property>
     </bean>
 
-    <bean id="itemWriter" class="com.master.batch.writer.EmployeeItemWriter">
-        <property name="templatePath" value="employeeTemplate.xlsx"/>
-        <property name="outputPath" value="/data/employees.xlsx"/>
+    <bean id="itemWriter" class="com.master.batch.writer.SimpleJxlItemWriter">
+        <property name="templatePath" value="studentTemplate.xlsx"/>
+        <property name="outputPath" value="/data/students.xlsx"/>
     </bean>
     
     <batch:job id="employeeExportJob" restartable="false" job-repository="jobRepository">
