@@ -15,15 +15,37 @@
 
     <bean id="itemWriter" class="com.master.batch.writer.EmployeeItemWriter">
         <property name="templatePath" value="employeeTemplate.xlsx"/>
-        <property name="outputPath" value="/data/employees.xlsx"/>
+        <property name="outputPath" value="${employee.report.path}"/>
     </bean>
     
     <batch:job id="employeeExportJob" restartable="false" job-repository="jobRepository">
-        <batch:step id="process">
+        <batch:step id="process" next="shouldMail">
             <batch:tasklet transaction-manager="transactionManager">
                 <batch:chunk reader="itemReader" writer="itemWriter" commit-interval="10"/>
             </batch:tasklet>
         </batch:step>
+        <batch:decision id="shouldMail" decider="shouldMailDecider">
+            <batch:next on="MAIL" to="sendReport"/>
+        </batch:decision>
+        <batch:step id="sendReport">
+            <batch:tasklet ref="mailTasklet"/>
+        </batch:step>
     </batch:job>
+
+    <bean id="mailTasklet" class="com.master.batch.tasklet.MailTasklet">
+        <property name="mailDetail" ref="mailDetail"/>
+    </bean>
+
+    <bean id="shouldMailDecider" class="com.master.batch.decider.ShouldMailDecider">
+        <constructor-arg value="${employee.report.mail}"/>
+    </bean>
+
+    <bean id="mailDetail" class="com.master.batch.model.MailDetail">
+        <property name="from" value="${employee.report.mail.from}"/>
+        <property name="to" value="${employee.report.mail.to}"/>
+        <property name="subject" value="${employee.report.mail.subject}"/>
+        <property name="content" value="${employee.report.mail.content}"/>
+        <property name="attachmentPath" value="${employee.report.path}"/>
+    </bean>
 
 </beans>
