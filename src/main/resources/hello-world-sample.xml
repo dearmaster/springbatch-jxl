@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+    <!-- below part should be common -->
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
+
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+
+    <!-- blow is for specified jobs -->
+    <batch:job id="helloWorldJob">
+        <batch:step id="step_hello" next="step_world">
+            <batch:tasklet ref="hello" transaction-manager="transactionManager"/>
+        </batch:step>
+        <batch:step id="step_world">
+            <batch:tasklet ref="world" transaction-manager="transactionManager"/>
+        </batch:step>
+    </batch:job>
+
+    <bean id="hello" class="com.master.springbatch.sample.SimpleWriteTask">
+        <property name="msg" value="hello"/>
+    </bean>
+
+    <bean id="world" class="com.master.springbatch.sample.SimpleWriteTask">
+        <property name="msg" value="world"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+
+    <!--元素据放置于内存中-->
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
+
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://www.eduoer.com:3306/pure?useUnicode=true&amp;characterEncoding=utf8"/>
+        <property name="username" value="admin"/>
+        <property name="password" value="admin976"/>
+    </bean>
+
+    <bean id="itemReader" class="org.springframework.batch.item.database.StoredProcedureItemReader">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="procedureName" value="get_employees_sp"/>
+        <property name="rowMapper">
+            <bean class="com.master.batch.mapper.EmployeeRowMapper"/>
+        </property>
+    </bean>
+
+    <bean id="itemWriter" class="com.master.batch.writer.JxlItemWriter">
+        <property name="templatePath" value="employeeTemplate.xlsx"/>
+        <property name="outputPath" value="/data/output.xlsx"/>
+    </bean>
+    
+    <batch:job id="employeeExportJob" restartable="false" job-repository="jobRepository">
+        <batch:step id="process">
+            <batch:tasklet transaction-manager="transactionManager">
+                <batch:chunk reader="itemReader" writer="itemWriter" commit-interval="10"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+
+</beans>
